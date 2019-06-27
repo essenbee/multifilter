@@ -55,7 +55,11 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+	AudioProcessorValueTreeState pluginState;
+
 private:
     //==============================================================================
+	AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MultifilterAudioProcessor)
 };
