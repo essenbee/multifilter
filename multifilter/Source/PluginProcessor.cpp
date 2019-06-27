@@ -38,8 +38,7 @@ AudioProcessorValueTreeState::ParameterLayout MultifilterAudioProcessor::createP
 	auto cutoffFrequencyParam = std::make_unique<AudioParameterInt>("cutoff", "Cutoff_Frequency", 20, 20480, 1000);
 	auto qFactorParam = std::make_unique<AudioParameterFloat>("qfactor", "Q_Factor", 0.707f, 20.0f, 0.707f);
 	auto boostParam = std::make_unique<AudioParameterFloat>("boost", "Boost", -20.0f, 20.0f, 0.0f);
-	auto filterTypeParam = std::make_unique<AudioParameterInt>("filter_type", "Filter_Type", 
-		NormalisableRange<int>(1, 29, 1), 1);
+	auto filterTypeParam = std::make_unique<AudioParameterInt>("filter_type", "Filter_Type", 1, 29, 1);
 
 	audioParams.push_back(std::move(cutoffFrequencyParam));
 	audioParams.push_back(std::move(qFactorParam));
