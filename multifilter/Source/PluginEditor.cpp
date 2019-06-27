@@ -17,7 +17,7 @@ MultifilterAudioProcessorEditor::MultifilterAudioProcessorEditor (MultifilterAud
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (1200, 300);
+    setSize (800, 300);
 
 	cutoffFreqControl.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
 	cutoffFreqControl.setTextBoxStyle(Slider::NoTextBox, false, 90, 0);
@@ -43,8 +43,14 @@ MultifilterAudioProcessorEditor::MultifilterAudioProcessorEditor (MultifilterAud
 
 	addAndMakeVisible(&boostControl);
 
+	filterTypeControl.addItemList(
+		{ "LPF1P", "LPF1", "HPF1", "LPF2", "HPF2", "BPF2", "BSF2", "ButterLPF2", "ButterHPF2",
+		  "ButterBPF2", "ButterSF2", "MMALPF2", "MMALPF2B", "LowShelf", "HighShelf", "NCQParaEQ",
+		  "CQParaEQ", "LWRLPF2", "LWRHPF2", "APF1", "APF2", "ResonA", "ResonB", "MatchLP2A",
+		  "MatchLP2B", "MatchBP2A", "MatchBF2B", "ImpInvLP1", "ImpInvLP2" }, 1);
 	filterTypeValue = std::make_unique<AudioProcessorValueTreeState::ComboBoxAttachment>(processor.pluginState, "filter_type", filterTypeControl);
-
+	filterTypeControl.setText("Filter Type");
+	
 	addAndMakeVisible(&filterTypeControl);
 }
 
@@ -63,8 +69,8 @@ void MultifilterAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
-	cutoffFreqControl.setBoundsRelative(0.1f, 0.1f, 0.1f, 0.1f);
-	qFactorControl.setBoundsRelative(0.2f, 0.1f, 0.1f, 0.1f);
-	boostControl.setBoundsRelative(0.3f, 0.1f, 0.1f, 0.1f);
-	filterTypeControl.setBoundsRelative(0.4f, 0.1f, 0.25f, 0.1f);
+	cutoffFreqControl.setBoundsRelative(0.05f, 0.1f, 0.1f, 0.1f);
+	qFactorControl.setBoundsRelative(0.15f, 0.1f, 0.1f, 0.1f);
+	boostControl.setBoundsRelative(0.25f, 0.1f, 0.1f, 0.1f);
+	filterTypeControl.setBoundsRelative(0.35f, 0.1f, 0.25f, 0.05f);
 }
