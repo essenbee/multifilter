@@ -34,6 +34,9 @@ private:
 	Slider qFactorControl;
 	Slider boostControl;
 	ComboBox filterTypeControl;
+	Label pluginName;
+
+	void makeRotorySlider(Slider* slider, String suffix, Component* parent);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MultifilterAudioProcessorEditor)
 

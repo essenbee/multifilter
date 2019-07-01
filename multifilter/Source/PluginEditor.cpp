@@ -19,28 +19,19 @@ MultifilterAudioProcessorEditor::MultifilterAudioProcessorEditor (MultifilterAud
     // editor's size to whatever you need it to be.
     setSize (500, 200);
 
-	cutoffFreqControl.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
-	cutoffFreqControl.setTextBoxStyle(Slider::NoTextBox, false, 90, 0);
-	cutoffFreqControl.setPopupDisplayEnabled(true, true, this);
-	cutoffFreqControl.setTextValueSuffix(" Cutoff Frequency");
-	cutoffFreqValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.pluginState, "cutoff", cutoffFreqControl);
+	pluginName.setText("Codebase Alpha Multi-filter", dontSendNotification);
+	addAndMakeVisible(&pluginName);
 
+	makeRotorySlider(&cutoffFreqControl, " Cutoff Frequency (Hz)", this);
+	cutoffFreqValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.pluginState, "cutoff", cutoffFreqControl);
 	addAndMakeVisible(&cutoffFreqControl);
 
-	qFactorControl.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
-	qFactorControl.setTextBoxStyle(Slider::NoTextBox, false, 90, 0);
-	qFactorControl.setPopupDisplayEnabled(true, true, this);
-	qFactorControl.setTextValueSuffix(" Q");
+	makeRotorySlider(&qFactorControl, " Q", this);
 	qFactorValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.pluginState, "qfactor", qFactorControl);
-
 	addAndMakeVisible(&qFactorControl);
 
-	boostControl.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
-	boostControl.setTextBoxStyle(Slider::NoTextBox, false, 90, 0);
-	boostControl.setPopupDisplayEnabled(true, true, this);
-	boostControl.setTextValueSuffix(" dB");
+	makeRotorySlider(&boostControl, " Feedback (dB)", this);
 	boostValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.pluginState, "boost", boostControl);
-
 	addAndMakeVisible(&boostControl);
 
 	filterTypeControl.addItemList(
@@ -59,6 +50,14 @@ MultifilterAudioProcessorEditor::~MultifilterAudioProcessorEditor()
 {
 }
 
+void MultifilterAudioProcessorEditor::makeRotorySlider(Slider* slider, String suffix, Component* parent)
+{
+	slider->setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
+	slider->setTextBoxStyle(Slider::NoTextBox, false, 90, 0);
+	slider->setPopupDisplayEnabled(true, true, parent);
+	slider->setTextValueSuffix(suffix);
+}
+
 //==============================================================================
 void MultifilterAudioProcessorEditor::paint (Graphics& g)
 {
@@ -73,10 +72,14 @@ void MultifilterAudioProcessorEditor::resized()
 
 	Grid grid;
 
-	grid.templateRows = { Grid::TrackInfo(1_fr) };
+	grid.templateRows = { Grid::TrackInfo(1_fr), Grid::TrackInfo(1_fr) };
 	grid.templateColumns = { Grid::TrackInfo(1_fr), Grid::TrackInfo(1_fr), Grid::TrackInfo(1_fr), Grid::TrackInfo(2_fr) };
 
-	grid.items = { GridItem(cutoffFreqControl), 
+	grid.items = { 
+		GridItem(pluginName)
+		.withArea(GridItem::Property(1), GridItem::Property(1), GridItem::Property(1), GridItem::Property(5))
+		.withJustifySelf(GridItem::JustifySelf::center),
+		GridItem(cutoffFreqControl), 
 		GridItem(qFactorControl), 
 		GridItem(boostControl), 
 		GridItem(filterTypeControl)

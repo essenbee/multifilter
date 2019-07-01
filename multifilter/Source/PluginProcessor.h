@@ -61,5 +61,9 @@ private:
     //==============================================================================
 	AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 
+	AudioFilter leftAudioFilter;
+	AudioFilter rightAudioFilter;
+	void updateParameters();
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MultifilterAudioProcessor)
 };

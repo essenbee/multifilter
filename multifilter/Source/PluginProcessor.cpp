@@ -35,10 +35,10 @@ AudioProcessorValueTreeState::ParameterLayout MultifilterAudioProcessor::createP
 {
 	std::vector<std::unique_ptr<RangedAudioParameter>> audioParams;
 
-	auto cutoffFrequencyParam = std::make_unique<AudioParameterInt>("cutoff", "Cutoff_Frequency", 20, 20480, 1000);
-	auto qFactorParam = std::make_unique<AudioParameterFloat>("qfactor", "Q_Factor", 0.707f, 20.0f, 0.707f);
-	auto boostParam = std::make_unique<AudioParameterFloat>("boost", "Boost", -20.0f, 20.0f, 0.0f);
-	auto filterTypeParam = std::make_unique<AudioParameterInt>("filter_type", "Filter_Type", 1, 29, 1);
+	auto cutoffFrequencyParam = std::make_unique<AudioParameterInt>("cutoff", "Cutoff Frequency", 20, 20480, 1000);
+	auto qFactorParam = std::make_unique<AudioParameterFloat>("qfactor", "Q Factor", 0.707f, 20.0f, 0.707f);
+	auto boostParam = std::make_unique<AudioParameterFloat>("boost", "Boost/Cut", -20.0f, 20.0f, 0.0f);
+	auto filterTypeParam = std::make_unique<AudioParameterInt>("filter_type", "Filter Type", 0, 28, 0);
 
 	audioParams.push_back(std::move(cutoffFrequencyParam));
 	audioParams.push_back(std::move(qFactorParam));
@@ -115,6 +115,24 @@ void MultifilterAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+
+	leftAudioFilter.reset(sampleRate);
+	rightAudioFilter.reset(sampleRate);
+}
+
+void MultifilterAudioProcessor::updateParameters()
+{
+	auto filterParameters = leftAudioFilter.getParameters();
+	filterParameters.fc = *pluginState.getRawParameterValue("cutoff");
+	filterParameters.Q = *pluginState.getRawParameterValue("qfactor");
+	filterParameters.boostCut_dB = *pluginState.getRawParameterValue("boost");
+
+	int filterType = *pluginState.getRawParameterValue("filter_type");
+
+	filterParameters.algorithm = static_cast<filterAlgorithm>(filterType);
+
+	leftAudioFilter.setParameters(filterParameters);
+	rightAudioFilter.setParameters(filterParameters);
 }
 
 void MultifilterAudioProcessor::releaseResources()
@@ -153,27 +171,24 @@ void MultifilterAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
+	updateParameters();
+
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
+		auto* inputDataLeft = buffer.getReadPointer(0);
+        auto* outputDataLeft = buffer.getWritePointer(0);
+		auto* inputDataRight = buffer.getReadPointer(1);
+		auto* outputDataRight = buffer.getWritePointer(1);
 
-        // ..do something to the data...
-    }
+		for (int i = 0; i < buffer.getNumSamples(); i++)
+		{
+			float inputSampleLeft = inputDataLeft[i];
+			float inputSampleRight = inputDataRight[i];
+
+			outputDataLeft[i] = leftAudioFilter.processAudioSample(inputSampleLeft);
+			outputDataRight[i] = rightAudioFilter.processAudioSample(inputSampleRight);
+		}
 }
 
 //==============================================================================
